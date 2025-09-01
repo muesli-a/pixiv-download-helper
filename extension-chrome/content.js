@@ -5,7 +5,7 @@
 
 (() => {
   // Prevent the script from running multiple times
-  if (document.getElementById('pixiv-download-helper-modal')) {
+  if (document.getElementById("pixiv-download-helper-modal")) {
     return;
   }
 
@@ -18,11 +18,13 @@
   const userIdMatch = bodyHtml.match(/users\/(\d+)\/artworks/);
   const userId = userIdMatch ? userIdMatch[1] : null;
 
-  let userName = null;
-  const avatarImg = document.querySelector('img[alt$="のプロフィール画像"]');
-  if (avatarImg) {
-      userName = avatarImg.alt.replace('のプロフィール画像', '').trim();
-  }
+  // New, simplified, and accurate user_name extraction logic.
+  // It targets the user's avatar element and extracts the name from its 'title' attribute.
+  const userNameSelector = 'h2 a[href*="/users/"] div[role="img"][title]';
+  const userNameElement = document.querySelector(userNameSelector);
+  const userName = userNameElement
+    ? userNameElement.getAttribute("title")
+    : "ユーザー名を特定できませんでした";
 
   const data = {
     illust_id: illustId,
@@ -70,7 +72,7 @@
 
     #pixiv-download-helper-modal-content {
       text-align: left;
-      max-width: 60vw; 
+      max-width: 60vw;
       max-height: 70vh;
       overflow: auto;
       background-color: #f5f5f5;
@@ -99,17 +101,18 @@
   // --- Injection and Logic ---
 
   // Inject CSS
-  const styleElement = document.createElement('style');
+  const styleElement = document.createElement("style");
   styleElement.textContent = modalCSS;
   document.head.appendChild(styleElement);
 
   // Inject HTML
-  const modalContainer = document.createElement('div');
+  const modalContainer = document.createElement("div");
   modalContainer.innerHTML = modalHTML;
   document.body.appendChild(modalContainer);
 
   // Populate data
-  document.getElementById('pixiv-download-helper-json-output').textContent = jsonString;
+  document.getElementById("pixiv-download-helper-json-output").textContent =
+    jsonString;
 
   /**
    * Closes and removes the modal from the DOM.
@@ -120,7 +123,10 @@
   }
 
   // Add event listeners
-  document.getElementById('pixiv-download-helper-modal-backdrop').addEventListener('click', closeModal);
-  document.getElementById('pixiv-download-helper-ok-button').addEventListener('click', closeModal);
-
+  document
+    .getElementById("pixiv-download-helper-modal-backdrop")
+    .addEventListener("click", closeModal);
+  document
+    .getElementById("pixiv-download-helper-ok-button")
+    .addEventListener("click", closeModal);
 })();

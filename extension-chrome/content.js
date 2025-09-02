@@ -26,10 +26,35 @@
     ? userNameElement.getAttribute("title")
     : "ユーザー名を特定できませんでした";
 
+  const titleSelector = "figcaption h1";
+  const titleElement = document.querySelector(titleSelector);
+  const title = titleElement ? titleElement.innerText : "タイトルを特定できませんでした";
+
+  const descriptionSelector = "figcaption p";
+  const descriptionElement = document.querySelector(descriptionSelector);
+  let description = "概要を特定できませんでした";
+  if (descriptionElement) {
+    // Clone the element to avoid modifying the original page content
+    const tempElement = descriptionElement.cloneNode(true);
+
+    // Replace <br> with newline characters
+    tempElement.innerHTML = tempElement.innerHTML.replace(/<br\s*\/?>/gi, "\n");
+
+    // Remove hyperlinks but keep their text content
+    const links = tempElement.querySelectorAll("a");
+    links.forEach(link => {
+      link.outerHTML = link.innerHTML; // Replace the <a> tag with its content
+    });
+
+    description = tempElement.innerText;
+  }
+
   const data = {
     illust_id: illustId,
     user_id: userId,
     user_name: userName,
+    title: title,
+    description: description,
   };
 
   const jsonString = JSON.stringify(data, null, 2);

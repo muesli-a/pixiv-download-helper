@@ -28,7 +28,9 @@
 
   const titleSelector = "figcaption h1";
   const titleElement = document.querySelector(titleSelector);
-  const title = titleElement ? titleElement.innerText : "タイトルを特定できませんでした";
+  const title = titleElement
+    ? titleElement.innerText
+    : "タイトルを特定できませんでした";
 
   const descriptionSelector = "figcaption p";
   const descriptionElement = document.querySelector(descriptionSelector);
@@ -42,12 +44,21 @@
 
     // Remove hyperlinks but keep their text content
     const links = tempElement.querySelectorAll("a");
-    links.forEach(link => {
+    links.forEach((link) => {
       link.outerHTML = link.innerHTML; // Replace the <a> tag with its content
     });
 
     description = tempElement.innerText;
   }
+
+  const tagsSelector = "figcaption footer ul li";
+  const tagElements = document.querySelectorAll(tagsSelector);
+  const tags = Array.from(tagElements)
+    .map((li) => {
+      const link = li.querySelector("a");
+      return link ? link.innerText : "";
+    })
+    .filter((tag) => tag !== "");
 
   const data = {
     illust_id: illustId,
@@ -55,6 +66,7 @@
     user_name: userName,
     title: title,
     description: description,
+    tags: tags,
   };
 
   const jsonString = JSON.stringify(data, null, 2);

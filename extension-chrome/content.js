@@ -60,6 +60,30 @@
     })
     .filter((tag) => tag !== "");
 
+  let imageUrls = [];
+  const pageCountSelector = ".gtm-manga-viewer-open-preview span";
+  const pageCountElement = document.querySelector(pageCountSelector);
+  let pageCount = 1;
+  if (pageCountElement) {
+    const match = pageCountElement.innerText.match(/\d+\/(\d+)/);
+    if (match) {
+      pageCount = parseInt(match[1], 10);
+    }
+  }
+
+  const originalUrlMatch = bodyHtml.match(/https:\/\/i\.pximg\.net\/img-original\/img\/[^"']+/);
+  if (originalUrlMatch) {
+    const baseUrl = originalUrlMatch[0];
+    const urlParts = baseUrl.split('/');
+    const filename = urlParts.pop();
+    const basePath = urlParts.join('/') + '/';
+    const extension = filename.split('.').pop();
+
+    for (let i = 0; i < pageCount; i++) {
+      imageUrls.push(`${basePath}${illustId}_p${i}.${extension}`);
+    }
+  }
+
   const data = {
     illust_id: illustId,
     user_id: userId,
@@ -67,6 +91,7 @@
     title: title,
     description: description,
     tags: tags,
+    image_urls: imageUrls,
   };
 
   const jsonString = JSON.stringify(data, null, 2);

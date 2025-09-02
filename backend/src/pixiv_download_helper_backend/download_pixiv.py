@@ -2,9 +2,9 @@ import os
 import time
 from pathlib import Path
 
+import httpx
 import piexif
 import piexif.helper
-import requests
 from dotenv import load_dotenv
 from PIL import Image, PngImagePlugin
 
@@ -83,26 +83,27 @@ def download_image(illust_info: IllustInfo) -> None:
     Downloads images and embeds metadata.
     """
     num_images = len(illust_info.image_urls)
-    for i, image_url in enumerate(illust_info.image_urls):
-        try:
-            referer = f"https://www.pixiv.net/artworks/{illust_info.illust_id}"
-            headers = DEFAULT_HEADERS.copy()
-            headers["Referer"] = referer
+    with httpx.Client(follow_redirects=True) as client:
+        for i, image_url in enumerate(illust_info.image_urls):
+            try:
+                referer = f"https://www.pixiv.net/artworks/{illust_info.illust_id}"
+                headers = DEFAULT_HEADERS.copy()
+                headers["Referer"] = referer
 
-            response = requests.get(image_url, headers=headers)
-            response.raise_for_status()
+                response = client.get(image_url, headers=headers)
+                response.raise_for_status()
 
-            image_name = Path(image_url).name
-            save_path = IMAGE_SAVE_DIR / image_name
+                image_name = Path(image_url).name
+                save_path = IMAGE_SAVE_DIR / image_name
 
-            with open(save_path, "wb") as f:
-                f.write(response.content)
-            print(f"Image downloaded: {save_path}")
+                with open(save_path, "wb") as f:
+                    f.write(response.content)
+                print(f"Image downloaded: {save_path}")
 
-            embed_metadata(save_path, illust_info)
+                embed_metadata(save_path, illust_info)
 
-        except requests.RequestException as e:
-            print(f"Failed to download {image_url}: {e}")
-        finally:
-            if i < num_images - 1:
-                time.sleep(1.1)
+            except httpx.RequestError as e:
+                print(f"Failed to download {image_url}: {e}")
+            finally:
+                if i < num_images - 1:
+                    time.sleep(1.1)

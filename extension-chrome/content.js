@@ -1,51 +1,47 @@
 /**
  * @file content.js
- * @description Injects and controls the modal dialog on the Pixiv page.
+ * @description Pixivのページにモーダルダイアログを挿入し、制御します。
  */
 
 (() => {
-  // Prevent the script from running multiple times
+  // スクリプトが複数回実行されるのを防ぐ
   if (document.getElementById("pixiv-download-helper-modal")) {
     return;
   }
 
-  // --- Information Extraction ---
+  // --- 情報抽出 ---
   const url = window.location.href;
   const illustIdMatch = url.match(/artworks\/(\d+)/);
-  const illustId = illustIdMatch ? illustIdMatch[1] : null;
+  const illustId = illustIdMatch ? illustIdMatch[1] : "";
 
   const bodyHtml = document.body.innerHTML;
   const userIdMatch = bodyHtml.match(/users\/(\d+)\/artworks/);
-  const userId = userIdMatch ? userIdMatch[1] : null;
+  const userId = userIdMatch ? userIdMatch[1] : "";
 
-  // New, simplified, and accurate user_name extraction logic.
-  // It targets the user's avatar element and extracts the name from its 'title' attribute.
+  // 新しく、シンプルで正確なユーザー名抽出ロジック
+  // ユーザーのアバター要素をターゲットにし、その'title'属性から名前を抽出します。
   const userNameSelector = 'h2 a[href*="/users/"] div[role="img"][title]';
   const userNameElement = document.querySelector(userNameSelector);
-  const userName = userNameElement
-    ? userNameElement.getAttribute("title")
-    : "ユーザー名を特定できませんでした";
+  const userName = userNameElement ? userNameElement.getAttribute("title") : "";
 
   const titleSelector = "figcaption h1";
   const titleElement = document.querySelector(titleSelector);
-  const title = titleElement
-    ? titleElement.innerText
-    : "タイトルを特定できませんでした";
+  const title = titleElement ? titleElement.innerText : "";
 
   const descriptionSelector = "figcaption p";
   const descriptionElement = document.querySelector(descriptionSelector);
-  let description = "概要を特定できませんでした";
+  let description = "";
   if (descriptionElement) {
-    // Clone the element to avoid modifying the original page content
+    // 元のページ内容を変更しないように要素を複製する
     const tempElement = descriptionElement.cloneNode(true);
 
-    // Replace <br> with newline characters
+    // <br>を改行文字に置換する
     tempElement.innerHTML = tempElement.innerHTML.replace(/<br\s*\/?>/gi, "\n");
 
-    // Remove hyperlinks but keep their text content
+    // ハイパーリンクを削除し、テキスト内容のみを保持する
     const links = tempElement.querySelectorAll("a");
     links.forEach((link) => {
-      link.outerHTML = link.innerHTML; // Replace the <a> tag with its content
+      link.outerHTML = link.innerHTML; // <a>タグをその内容で置換する
     });
 
     description = tempElement.innerText;
@@ -53,12 +49,16 @@
 
   const tagsSelector = "figcaption footer ul li";
   const tagElements = document.querySelectorAll(tagsSelector);
-  const tags = Array.from(tagElements)
+  let tags = Array.from(tagElements)
     .map((li) => {
       const link = li.querySelector("a");
       return link ? link.innerText : "";
     })
     .filter((tag) => tag !== "");
+
+  if (tags.length === 0) {
+    tags = [""];
+  }
 
   let imageUrls = [];
   const pageCountSelector = ".gtm-manga-viewer-open-preview span";
@@ -71,17 +71,23 @@
     }
   }
 
-  const originalUrlMatch = bodyHtml.match(/https:\/\/i\.pximg\.net\/img-original\/img\/[^"']+/);
+  const originalUrlMatch = bodyHtml.match(
+    /https:\/\/i\.pximg\.net\/img-original\/img\/[^"']+/
+  );
   if (originalUrlMatch) {
     const baseUrl = originalUrlMatch[0];
-    const urlParts = baseUrl.split('/');
+    const urlParts = baseUrl.split("/");
     const filename = urlParts.pop();
-    const basePath = urlParts.join('/') + '/';
-    const extension = filename.split('.').pop();
+    const basePath = urlParts.join("/") + "/";
+    const extension = filename.split(".").pop();
 
     for (let i = 0; i < pageCount; i++) {
       imageUrls.push(`${basePath}${illustId}_p${i}.${extension}`);
     }
+  }
+
+  if (imageUrls.length === 0) {
+    imageUrls = [""];
   }
 
   const data = {
@@ -96,7 +102,25 @@
 
   const jsonString = JSON.stringify(data, null, 2);
 
-  // --- Modal HTML and CSS ---
+  // --- バックエンドへのデータ送信 ---
+  fetch("http://127.0.0.1:8001/download-image", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      console.log("Data successfully sent to backend.");
+    })
+    .catch((error) => {
+      console.error("Error sending data to backend:", error);
+    });
+
+  // --- モーダルのHTMLとCSS ---
   const modalHTML = `
     <div id="pixiv-download-helper-modal-backdrop"></div>
     <div id="pixiv-download-helper-modal">
@@ -160,31 +184,31 @@
     }
   `;
 
-  // --- Injection and Logic ---
+  // --- 挿入とロジック ---
 
-  // Inject CSS
+  // CSSを挿入
   const styleElement = document.createElement("style");
   styleElement.textContent = modalCSS;
   document.head.appendChild(styleElement);
 
-  // Inject HTML
+  // HTMLを挿入
   const modalContainer = document.createElement("div");
   modalContainer.innerHTML = modalHTML;
   document.body.appendChild(modalContainer);
 
-  // Populate data
+  // データを入力
   document.getElementById("pixiv-download-helper-json-output").textContent =
     jsonString;
 
   /**
-   * Closes and removes the modal from the DOM.
+   * モーダルを閉じてDOMから削除します。
    */
   function closeModal() {
     modalContainer.remove();
     styleElement.remove();
   }
 
-  // Add event listeners
+  // イベントリスナーを追加
   document
     .getElementById("pixiv-download-helper-modal-backdrop")
     .addEventListener("click", closeModal);

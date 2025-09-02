@@ -1,11 +1,11 @@
 /**
  * @file background.js
- * @description Service worker for the pixiv-download-helper extension.
+ * @description pixiv-download-helper拡張機能のService Workerです。
  */
 
 /**
- * Creates the context menu item when the extension is installed.
- * @summary Listens for the runtime.onInstalled event.
+ * 拡張機能がインストールされたときにコンテキストメニュー項目を作成します。
+ * @summary runtime.onInstalledイベントをリッスンします。
  */
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
@@ -17,10 +17,10 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 /**
- * Handles clicks on the context menu item.
- * @summary Listens for the contextMenus.onClicked event.
- * @param {chrome.contextMenus.OnClickData} info - Information about the clicked menu item.
- * @param {chrome.tabs.Tab} tab - The tab where the click occurred.
+ * コンテキストメニュー項目がクリックされたときの処理です。
+ * @summary contextMenus.onClickedイベントをリッスンします。
+ * @param {chrome.contextMenus.OnClickData} info - クリックされたメニュー項目に関する情報。
+ * @param {chrome.tabs.Tab} tab - クリックが発生したタブ。
  */
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "pixiv-download-helper") {

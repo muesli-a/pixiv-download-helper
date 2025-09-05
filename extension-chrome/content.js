@@ -18,7 +18,6 @@
   const userIdMatch = bodyHtml.match(/users\/(\d+)\/artworks/);
   const userId = userIdMatch ? userIdMatch[1] : "";
 
-  // 新しく、シンプルで正確なユーザー名抽出ロジック
   // ユーザーのアバター要素をターゲットにし、その'title'属性から名前を抽出します。
   const userNameSelector = 'h2 a[href*="/users/"] div[role="img"][title]';
   const userNameElement = document.querySelector(userNameSelector);
@@ -47,13 +46,10 @@
     description = tempElement.innerText;
   }
 
-  const tagsSelector = "figcaption footer ul li";
+  const tagsSelector = "figcaption footer ul li a";
   const tagElements = document.querySelectorAll(tagsSelector);
   let tags = Array.from(tagElements)
-    .map((li) => {
-      const link = li.querySelector("a");
-      return link ? link.innerText : "";
-    })
+    .map((link) => link.innerText)
     .filter((tag) => tag !== "");
 
   if (tags.length === 0) {
@@ -61,13 +57,22 @@
   }
 
   let imageUrls = [];
-  const pageCountSelector = ".gtm-manga-viewer-open-preview span";
-  const pageCountElement = document.querySelector(pageCountSelector);
-  let pageCount = 1;
-  if (pageCountElement) {
-    const match = pageCountElement.innerText.match(/\d+\/(\d+)/);
-    if (match) {
+
+  // --- ページ数取得ロジック (修正後) ---
+  let pageCount = 1; // デフォルト値を1に設定
+
+  // 1. figureタグ内にある全てのspan要素を候補として取得します。
+  const candidateSpans = document.querySelectorAll("figure span");
+
+  // 2. 取得した各span要素をループでチェックします。
+  for (const span of candidateSpans) {
+    // 3. span要素のテキストが "数字/数字" という形式に一致するかを正規表現で確認します。
+    const match = span.innerText.match(/^\d+\/(\d+)$/);
+
+    // 4. マッチした場合、総ページ数を抽出し、ループを終了します。
+    if (match && match[1]) {
       pageCount = parseInt(match[1], 10);
+      break; // ページ数が見つかったため、これ以上の探索は不要
     }
   }
 
@@ -103,13 +108,16 @@
   const jsonString = JSON.stringify(data, null, 2);
 
   // --- バックエンドへのデータ送信 ---
-  fetch("http://127.0.0.1:8001/download-image", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  })
+  fetch(
+    "[http://127.0.0.1:8001/download-image](http://127.0.0.1:8001/download-image)",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  )
     .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

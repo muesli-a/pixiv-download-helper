@@ -147,9 +147,10 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background-color: white;
+      background: white;
+      color: black;
       padding: 20px;
-      border-radius: 8px;
+      border: 1px solid black;
       z-index: 9999;
       display: flex;
       flex-direction: column;
@@ -157,29 +158,27 @@
     }
 
     #pixiv-download-helper-modal-content {
-      text-align: left;
       max-width: 60vw;
       max-height: 70vh;
       overflow: auto;
-      background-color: #f5f5f5;
-      padding: 15px;
-      border-radius: 4px;
-      min-width: 300px; /* Ensure a minimum width */
+      background: #f0f0f0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      min-width: 300px;
     }
 
     #pixiv-download-helper-ok-button {
       margin-top: 15px;
       padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      background-color: #007bff;
-      color: white;
+      background: #ddd;
+      border: 1px solid #aaa;
+      color: black;
       cursor: pointer;
       transition: background-color 0.3s, transform 0.1s;
     }
 
     #pixiv-download-helper-ok-button:active {
-      background-color: #0056b3;
+      background-color: #ccc;
       transform: scale(0.95);
     }
   `;

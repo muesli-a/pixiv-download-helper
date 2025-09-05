@@ -108,16 +108,13 @@
   const jsonString = JSON.stringify(data, null, 2);
 
   // --- バックエンドへのデータ送信 ---
-  fetch(
-    "[http://127.0.0.1:8001/download-image](http://127.0.0.1:8001/download-image)",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    }
-  )
+  fetch("http://127.0.0.1:8001/download-image", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
     .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

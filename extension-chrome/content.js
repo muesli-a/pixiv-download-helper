@@ -146,7 +146,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.7); /* @darkreader-ignore */
       z-index: 9998;
     }
 
@@ -155,10 +155,10 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: white;
-      color: black;
+      background: #282828; /* @darkreader-ignore */
+      color: #f0f0f0; /* @darkreader-ignore */
       padding: 20px;
-      border: 1px solid black;
+      border: 1px solid #606060; /* @darkreader-ignore */
       z-index: 9999;
       display: flex;
       flex-direction: column;
@@ -169,25 +169,19 @@
       max-width: 60vw;
       max-height: 70vh;
       overflow: auto;
-      background: #f0f0f0;
-      padding: 10px;
-      border: 1px solid #ccc;
+      background: #1c1c1c; /* @darkreader-ignore */
+      padding: 15px;
+      border: 1px solid #505050; /* @darkreader-ignore */
       min-width: 300px;
     }
 
     #pixiv-download-helper-ok-button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      background: #ddd;
-      border: 1px solid #aaa;
-      color: black;
+      margin-top: 20px;
+      padding: 10px 25px;
+      background: #404040; /* @darkreader-ignore */
+      border: 1px solid #707070; /* @darkreader-ignore */
+      color: #f0f0f0; /* @darkreader-ignore */
       cursor: pointer;
-      transition: background-color 0.3s, transform 0.1s;
-    }
-
-    #pixiv-download-helper-ok-button:active {
-      background-color: #ccc;
-      transform: scale(0.95);
     }
   `;
 
